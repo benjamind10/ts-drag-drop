@@ -1,7 +1,7 @@
 // Project Type
 enum ProjectStatus {
   Active,
-  Finished
+  Finished,
 }
 
 class Project {
@@ -41,7 +41,11 @@ class ProjectState extends State<Project> {
     return this.instance;
   }
 
-  addProject(title: string, description: string, numOfPeople: number) {
+  addProject(
+    title: string,
+    description: string,
+    numOfPeople: number
+  ) {
     const newProject = new Project(
       Math.random().toString(),
       title,
@@ -71,52 +75,65 @@ interface Validatable {
 function validate(validatableInput: Validatable) {
   let isValid = true;
   if (validatableInput.required) {
-    isValid = isValid && validatableInput.value.toString().trim().length !== 0;
+    isValid =
+      isValid &&
+      validatableInput.value.toString().trim().length !== 0;
   }
   if (
     validatableInput.minLength != null &&
     typeof validatableInput.value === 'string'
   ) {
     isValid =
-      isValid && validatableInput.value.length >= validatableInput.minLength;
+      isValid &&
+      validatableInput.value.length >= validatableInput.minLength;
   }
   if (
     validatableInput.maxLength != null &&
     typeof validatableInput.value === 'string'
   ) {
     isValid =
-      isValid && validatableInput.value.length <= validatableInput.maxLength;
+      isValid &&
+      validatableInput.value.length <= validatableInput.maxLength;
   }
   if (
     validatableInput.min != null &&
     typeof validatableInput.value === 'number'
   ) {
-    isValid = isValid && validatableInput.value >= validatableInput.min;
+    isValid =
+      isValid && validatableInput.value >= validatableInput.min;
   }
   if (
     validatableInput.max != null &&
     typeof validatableInput.value === 'number'
   ) {
-    isValid = isValid && validatableInput.value <= validatableInput.max;
+    isValid =
+      isValid && validatableInput.value <= validatableInput.max;
   }
   return isValid;
 }
 
 // autobind decorator
-function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+function autobind(
+  _: any,
+  _2: string,
+  descriptor: PropertyDescriptor
+) {
   const originalMethod = descriptor.value;
   const adjDescriptor: PropertyDescriptor = {
     configurable: true,
     get() {
       const boundFn = originalMethod.bind(this);
       return boundFn;
-    }
+    },
   };
   return adjDescriptor;
 }
 
 // Component Base Class
-abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+abstract class Component<
+  T extends HTMLElement,
+  U extends HTMLElement
+> {
   templateElement: HTMLTemplateElement;
   hostElement: T;
   element: U;
@@ -155,11 +172,35 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   abstract renderContent(): void;
 }
 
+// ProjectItem Class
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+  private project: Project;
+
+  constructor(hostId: string, project: Project) {
+    super('single-project', hostId, false, project.id);
+    this.project = project;
+
+    this.configure();
+    this.renderContent();
+  }
+
+  configure() {}
+
+  renderContent() {
+    this.element.querySelector('h2')!.textContent =
+      this.project.title;
+    this.element.querySelector('h3')!.textContent =
+      this.project.people.toString();
+    this.element.querySelector('p')!.textContent =
+      this.project.description;
+  }
+}
+
 // ProjectList Class
 class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   assignedProjects: Project[];
 
-  constructor(private type: 'active' | 'finished') {
+  qfy¨¸ﬂg constructor(private type: 'active' | 'finished') {
     super('project-list', 'app', false, `${type}-projects`);
     this.assignedProjects = [];
 
@@ -193,15 +234,16 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     )! as HTMLUListElement;
     listEl.innerHTML = '';
     for (const prjItem of this.assignedProjects) {
-      const listItem = document.createElement('li');
-      listItem.textContent = prjItem.title;
-      listEl.appendChild(listItem);
+      new ProjectItem(this.element.querySelector('ul')!.id, prjItem);
     }
   }
 }
 
 // ProjectInput Class
-class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
+class ProjectInput extends Component<
+  HTMLDivElement,
+  HTMLFormElement
+> {
   titleInputElement: HTMLInputElement;
   descriptionInputElement: HTMLInputElement;
   peopleInputElement: HTMLInputElement;
@@ -233,18 +275,18 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
 
     const titleValidatable: Validatable = {
       value: enteredTitle,
-      required: true
+      required: true,
     };
     const descriptionValidatable: Validatable = {
       value: enteredDescription,
       required: true,
-      minLength: 5
+      minLength: 5,
     };
     const peopleValidatable: Validatable = {
       value: +enteredPeople,
       required: true,
       min: 1,
-      max: 5
+      max: 5,
     };
 
     if (
